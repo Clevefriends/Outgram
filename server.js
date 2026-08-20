@@ -9,7 +9,7 @@ app.use(cookieParser());
 
 // Разрешаем запросы с вашего сайта на GitHub Pages
 app.use(cors({
-  origin: 'https://ВАШ_НИК.github.io', // Замените на ваш адрес GitHub Pages
+  origin: 'https://Clevefriends.github.io', // Замените на ваш адрес GitHub Pages
   credentials: true // Обязательно для отправки/получения Cookie
 }));
 
