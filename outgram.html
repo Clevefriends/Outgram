@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>GitHub Auth Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #0d1117; color: #c9d1d9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .box { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 8px; width: 280px; text-align: center; }
+    input { width: 100%; padding: 8px; margin: 6px 0; background: #0d1117; border: 1px solid #30363d; color: #fff; border-radius: 4px; box-sizing: border-box; }
+    button { width: 100%; padding: 8px; margin-top: 8px; background: #238636; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <div id="auth-form">
+      <h2>Вход / Регистрация</h2>
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Пароль">
+      <button onclick="login()">Войти</button>
+    </div>
+
+    <div id="profile" class="hidden">
+      <h2>Авторизован!</h2>
+      <p id="user-display"></p>
+      <button onclick="logout()" style="background: #da3633;">Выйти</button>
+    </div>
+
+    <p id="status" style="color: #8b949e; font-size: 13px;"></p>
+  </div>
+
+  <script>
+    // URL вашего бесплатного бэкенда на Render / Glitch
+    const API_URL = 'https://YOUR-BACKEND-URL.onrender.com';
+
+    // Вход / Регистрация с отправкой credentials (Cookie)
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const res = await fetch(`${API_URL}/api/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Обязательно для сохранения Cookie!
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      document.getElementById('status').innerText = data.message || data.error;
+      checkSession();
+    }
+
+    // Проверка наличия Cookie
+    async function checkSession() {
+      const res = await fetch(`${API_URL}/api/me`, { credentials: 'include' });
+      const data = await res.json();
+
+      if (data.loggedIn) {
+        document.getElementById('auth-form').classList.add('hidden');
+        document.getElementById('profile').classList.remove('hidden');
+        document.getElementById('user-display').innerText = data.email;
+      } else {
+        document.getElementById('auth-form').classList.remove('hidden');
+        document.getElementById('profile').classList.add('hidden');
+      }
+    }
+
+    // Выход
+    async function logout() {
+      await fetch(`${API_URL}/api/logout`, { method: 'POST', credentials: 'include' });
+      checkSession();
+    }
+
+    // Проверяем сессию при открытии страницы
+    checkSession();
+  </script>
+</body>
+</html>
